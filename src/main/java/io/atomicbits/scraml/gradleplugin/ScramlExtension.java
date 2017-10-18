@@ -32,7 +32,11 @@ public class ScramlExtension {
     }
 
     public String getRamlApi() {
-        return this.ramlApi.get();
+        if (this.ramlApi.isPresent()) {
+            return this.ramlApi.get();
+        } else {
+            return null;
+        }
     }
 
     public void setRamlApi(String ramlApi) {
@@ -44,7 +48,11 @@ public class ScramlExtension {
     }
 
     public String getApiPackage() {
-        return this.apiPackage.get();
+        if (this.apiPackage.isPresent()) {
+            return this.apiPackage.get();
+        } else {
+            return null;
+        }
     }
 
     public void setApiPackage(String apiPackage) {
@@ -56,7 +64,11 @@ public class ScramlExtension {
     }
 
     public String getResourceDirectory() {
-        return this.resourceDirectory.get();
+        if (this.resourceDirectory.isPresent()) {
+            return this.resourceDirectory.get();
+        } else {
+            return null;
+        }
     }
 
     public void setResourceDirectory(String resourceDirectory) {
@@ -68,7 +80,11 @@ public class ScramlExtension {
     }
 
     public String getOutputDirectory() {
-        return this.outputDirectory.get();
+        if (this.outputDirectory.isPresent()) {
+            return this.outputDirectory.get();
+        } else {
+            return null;
+        }
     }
 
     public void setOutputDirectory(String outputDirectory) {
@@ -80,7 +96,11 @@ public class ScramlExtension {
     }
 
     public String getLicenseKey() {
-        return this.licenseKey.get();
+        if (this.licenseKey.isPresent()) {
+            return this.licenseKey.get();
+        } else {
+            return null;
+        }
     }
 
     public void setLicenseKey(String licenseKey) {
@@ -92,7 +112,11 @@ public class ScramlExtension {
     }
 
     public String getClassHeader() {
-        return this.classHeader.get();
+        if (this.classHeader.isPresent()) {
+            return this.classHeader.get();
+        } else {
+            return null;
+        }
     }
 
     public void setClassHeader(String classHeader) {

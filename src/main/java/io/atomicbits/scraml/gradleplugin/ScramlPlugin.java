@@ -33,6 +33,11 @@ public class ScramlPlugin implements Plugin<Project> {
     @Override
     public void apply(Project project) {
         project.getExtensions().create(ScramlExtension.name, ScramlExtension.class, project);
-        project.getTasks().create(GenerateScramlCode.name, GenerateScramlCode.class);
+        project.getTasks()
+                .create(GenerateScramlCode.name, GenerateScramlCode.class)
+                .setDescription("Generates REST client code from a RAML model.");
+
+        // ToDo: depend the compile task on the codegen task
+
     }
 }

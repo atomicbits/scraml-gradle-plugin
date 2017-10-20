@@ -111,7 +111,7 @@ public class GenerateScramlCode extends DefaultTask {
             }
 
 
-            // project.addCompileSourceRoot(outputDirAsFile); // ToDo Gradleify
+            // project.addCompileSourceRoot(outputDirAsFile);
             registerOutputDir(outputBaseDirAsFile); // ToDo: test!
 
         } else {

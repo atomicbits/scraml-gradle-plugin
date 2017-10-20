@@ -3,9 +3,11 @@ package io.atomicbits.scraml.gradleplugin;
 import org.gradle.api.Action;
 import org.gradle.api.Plugin;
 import org.gradle.api.Project;
+import org.gradle.api.Task;
 import org.gradle.api.plugins.JavaPlugin;
 import org.gradle.api.plugins.JavaPluginConvention;
 import org.gradle.api.tasks.SourceSet;
+import org.gradle.api.tasks.TaskContainer;
 
 import java.util.Arrays;
 
@@ -33,11 +35,18 @@ public class ScramlPlugin implements Plugin<Project> {
     @Override
     public void apply(Project project) {
         project.getExtensions().create(ScramlExtension.name, ScramlExtension.class, project);
-        project.getTasks()
-                .create(GenerateScramlCode.name, GenerateScramlCode.class)
-                .setDescription("Generates REST client code from a RAML model.");
+        GenerateScramlCode scramlTask = project.getTasks().create(GenerateScramlCode.name, GenerateScramlCode.class);
+        scramlTask.setDescription("Generates REST client code from a RAML model.");
 
-        // ToDo: depend the compile task on the codegen task
+        // depend the compile task on the codegen task
+        project.getPlugins().withType(JavaPlugin.class, new Action<JavaPlugin>() {
+            public void execute(JavaPlugin javaPlugin) {
+                for (Task task : project.getTasksByName("compileJava", false)) {
+                    task.dependsOn(scramlTask);
+                }
+            }
+        });
 
     }
+
 }

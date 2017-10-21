@@ -9,8 +9,10 @@ import org.gradle.api.UnknownDomainObjectException;
 import org.gradle.api.artifacts.Configuration;
 import org.gradle.api.file.ConfigurableFileCollection;
 import org.gradle.api.file.FileCollection;
+import org.gradle.api.internal.file.DefaultSourceDirectorySet;
 import org.gradle.api.plugins.JavaPlugin;
 import org.gradle.api.plugins.JavaPluginConvention;
+import org.gradle.api.tasks.OutputDirectory;
 import org.gradle.api.tasks.SourceSet;
 import org.gradle.api.tasks.SourceSetContainer;
 import org.gradle.api.tasks.TaskAction;
@@ -44,14 +46,14 @@ public class GenerateScramlCode extends DefaultTask {
         String licenseKey = scramlExtension.getLicenseKey();
         String classHeader = scramlExtension.getClassHeader();
         String resourceDirectory = findResourceDirectory();
-        String outputDirectory = findOutputDirectory();
+        File outputDir = getOutputDirectory();
 
         logger.debug("ramlApi: " + ramlApi);
         logger.debug("apiPackage: " + apiPackage);
         logger.debug("licenseKey: " + licenseKey);
         logger.debug("classHeader: " + classHeader);
         logger.debug("resourceDirectory: " + resourceDirectory);
-        logger.debug("outputDirectory: " + outputDirectory);
+        logger.debug("outputDirectory: " + outputDir.getAbsolutePath());
 
         if (!StringUtil.isNullOrEmpty(ramlApi) && !StringUtil.isNullOrEmpty(resourceDirectory)) {
             System.out.println("Generating Scraml client API");
@@ -85,21 +87,14 @@ public class GenerateScramlCode extends DefaultTask {
                 throw new RuntimeException("Could not generate RAML client.", e);
             }
 
-            File outputBaseDirAsFile;
-            File outputDirAsFile;
-            if (isTopLevel(outputDirectory)) {
-                outputBaseDirAsFile = new File(outputDirectory);
-            } else {
-                outputBaseDirAsFile = new File(getProject().getProjectDir(), outputDirectory);
-            }
-            outputDirAsFile = new File(outputBaseDirAsFile, "generated-sources/scraml");
-            outputDirAsFile.mkdirs();
+            outputDir.mkdirs();
+            // ToDo: delete everything below outputDirAsFile recursively
 
             try {
                 for (Map.Entry<String, String> entry : generatedFiles.entrySet()) {
                     String filePath = entry.getKey();
                     String content = entry.getValue();
-                    File fileInDst = new File(outputDirAsFile, filePath);
+                    File fileInDst = new File(outputDir, filePath);
                     fileInDst.getParentFile().mkdirs();
                     FileWriter writer = new FileWriter(fileInDst);
                     writer.write(content);
@@ -112,7 +107,8 @@ public class GenerateScramlCode extends DefaultTask {
 
 
             // project.addCompileSourceRoot(outputDirAsFile);
-            registerOutputDir(outputBaseDirAsFile); // ToDo: test!
+//            registerOutputDir(outputBaseDirAsFile, SourceSet.MAIN_SOURCE_SET_NAME); // ToDo: test!
+//            registerOutputDir(outputBaseDirAsFile, SourceSet.TEST_SOURCE_SET_NAME); // ToDo: test!
 
         } else {
             logger.debug("No Scraml client API generated in project " + getProject().getDisplayName() +
@@ -155,30 +151,22 @@ public class GenerateScramlCode extends DefaultTask {
 
     }
 
+    @OutputDirectory
+    public File getOutputDirectory() {
+        String outputDirectory = findOutputDirectory();
+        File outputBaseDirAsFile;
+        if (isTopLevel(outputDirectory)) {
+            outputBaseDirAsFile = new File(outputDirectory);
+        } else {
+            outputBaseDirAsFile = new File(getProject().getProjectDir(), outputDirectory);
+        }
+        return new File(outputBaseDirAsFile, "generated-sources/scraml");
+    }
+
 
     private ScramlExtension getScramlExtension() {
         return (ScramlExtension) getProject().getExtensions().getByName(ScramlExtension.name);
     }
-
-
-    private void registerOutputDir(File outputDir) {
-        // begin - experimental
-
-        // See: https://www.javatips.net/api/org.gradle.api.tasks.sourceset
-        // See: https://discuss.gradle.org/t/how-to-use-gradle-with-generated-sources/9401/7
-
-
-        SourceSetContainer sourceSets = (SourceSetContainer) getProject().getProperties().get(SOURCE_SETS_PROPERTY);
-        if (sourceSets != null) {
-            SourceSet sourceSet = sourceSets.getByName(SourceSet.MAIN_SOURCE_SET_NAME);
-            FileCollection compileClassPath = sourceSet.getCompileClasspath();
-            ConfigurableFileCollection generatedFiles = getProject().files(outputDir);
-            sourceSet.setCompileClasspath(compileClassPath.plus(generatedFiles));
-        }
-
-        // end - experimental
-    }
-
 
     private String findOutputDirectory() {
         String outputDirectory = getScramlExtension().getOutputDirectory();

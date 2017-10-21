@@ -1,15 +1,15 @@
 package io.atomicbits.scraml.gradleplugin;
 
-import org.gradle.api.Action;
 import org.gradle.api.Plugin;
 import org.gradle.api.Project;
 import org.gradle.api.Task;
-import org.gradle.api.plugins.JavaPlugin;
+import org.gradle.api.file.ConfigurableFileCollection;
+import org.gradle.api.file.FileCollection;
 import org.gradle.api.plugins.JavaPluginConvention;
 import org.gradle.api.tasks.SourceSet;
-import org.gradle.api.tasks.TaskContainer;
 
-import java.util.Arrays;
+import java.io.File;
+import java.util.Set;
 
 /**
  * Created by peter on 13/10/17.
@@ -37,16 +37,14 @@ public class ScramlPlugin implements Plugin<Project> {
         project.getExtensions().create(ScramlExtension.name, ScramlExtension.class, project);
         GenerateScramlCode scramlTask = project.getTasks().create(GenerateScramlCode.name, GenerateScramlCode.class);
         scramlTask.setDescription("Generates REST client code from a RAML model.");
-
         // depend the compile task on the codegen task
-        project.getPlugins().withType(JavaPlugin.class, new Action<JavaPlugin>() {
-            public void execute(JavaPlugin javaPlugin) {
-                for (Task task : project.getTasksByName("compileJava", false)) {
-                    task.dependsOn(scramlTask);
-                }
-            }
-        });
-
+        for (Task task : project.getTasksByName("compileJava", false)) {
+            task.dependsOn(scramlTask);
+        }
+        // Add the generated source output dir to the Java source directories.
+        SourceSet mainSourceSet =
+                project.getConvention().getPlugin(JavaPluginConvention.class).getSourceSets().getByName(SourceSet.MAIN_SOURCE_SET_NAME);
+        mainSourceSet.getJava().srcDir(project.relativePath(scramlTask.getOutputDirectory()));
     }
 
 }

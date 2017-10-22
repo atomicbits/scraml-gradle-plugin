@@ -3,15 +3,8 @@ package io.atomicbits.scraml.gradleplugin;
 import io.atomicbits.scraml.generator.ScramlGenerator;
 import io.atomicbits.scraml.gradleplugin.util.ListUtils;
 import io.atomicbits.scraml.gradleplugin.util.StringUtil;
-import org.gradle.api.Action;
 import org.gradle.api.DefaultTask;
 import org.gradle.api.UnknownDomainObjectException;
-import org.gradle.api.artifacts.Configuration;
-import org.gradle.api.file.ConfigurableFileCollection;
-import org.gradle.api.file.FileCollection;
-import org.gradle.api.internal.file.DefaultSourceDirectorySet;
-import org.gradle.api.plugins.JavaPlugin;
-import org.gradle.api.plugins.JavaPluginConvention;
 import org.gradle.api.tasks.OutputDirectory;
 import org.gradle.api.tasks.SourceSet;
 import org.gradle.api.tasks.SourceSetContainer;
@@ -45,6 +38,7 @@ public class GenerateScramlCode extends DefaultTask {
         String apiPackage = scramlExtension.getApiPackage();
         String licenseKey = scramlExtension.getLicenseKey();
         String classHeader = scramlExtension.getClassHeader();
+        String platform = getPlatform();
         String resourceDirectory = findResourceDirectory();
         File outputDir = getOutputDirectory();
 
@@ -74,14 +68,25 @@ public class GenerateScramlCode extends DefaultTask {
 
             Map<String, String> generatedFiles;
             try {
-                generatedFiles =
-                        ScramlGenerator.generateJavaCode(
-                                ramlSource.toURI().toURL().toString(),
-                                apiPackageName,
-                                apiClassName,
-                                licenseKey,
-                                classHeader
-                        );
+                if (Platform.SCALA_PLAY.toLowerCase().equals(platform.toLowerCase())) {
+                    generatedFiles =
+                            ScramlGenerator.generateScalaCode(
+                                    ramlSource.toURI().toURL().toString(),
+                                    apiPackageName,
+                                    apiClassName,
+                                    licenseKey,
+                                    classHeader
+                            );
+                } else { // default
+                    generatedFiles =
+                            ScramlGenerator.generateJavaCode(
+                                    ramlSource.toURI().toURL().toString(),
+                                    apiPackageName,
+                                    apiClassName,
+                                    licenseKey,
+                                    classHeader
+                            );
+                }
             } catch (MalformedURLException | NullPointerException e) {
                 feedbackOnException(ramlBaseDir, ramlApi, ramlSource);
                 throw new RuntimeException("Could not generate RAML client.", e);
@@ -106,48 +111,10 @@ public class GenerateScramlCode extends DefaultTask {
             }
 
 
-            // project.addCompileSourceRoot(outputDirAsFile);
-//            registerOutputDir(outputBaseDirAsFile, SourceSet.MAIN_SOURCE_SET_NAME); // ToDo: test!
-//            registerOutputDir(outputBaseDirAsFile, SourceSet.TEST_SOURCE_SET_NAME); // ToDo: test!
-
         } else {
             logger.debug("No Scraml client API generated in project " + getProject().getDisplayName() +
                     " because there is no ramlApi set, or the resourceDirectory could not be found.");
         }
-
-
-        /**
-
-         compileJava
-         src/main/java
-
-         processResources
-         src/main/resources
-
-         compileTestJava
-         src/test/java
-
-         processTestResources
-         src/test/resources
-
-         "
-         Assuming that the initial build is successful (i.e. the build task and its dependencies complete without error), changes to
-         files in, or the addition/remove of files from, the locations listed above will initiate a new build. If a change is made to
-         a Java source file in src/main/java, the build will fire and all tasks will be scheduled. Gradle’s incremental build support
-         ensures that only the tasks that are actually affected by the change are executed.
-
-         If the change to the main Java source causes compilation to fail, subsequent changes to the test source in src/test/java will
-         not initiate a new build. As the test source depends on the main source, there is no point building until the main source has
-         changed, potentially fixing the compilation error. After each build, only the inputs of the tasks that actually executed will
-         be monitored for changes.
-
-         Continuous build is in no way coupled to compilation. It works for all types of tasks. For example, the processResources task
-         copies and processes the files from src/main/resources for inclusion in the built JAR. As such, a change to any file in this
-         directory will also initiate a build.
-         " -- https://docs.gradle.org/current/userguide/userguide_single.html
-
-         */
-
 
     }
 
@@ -200,6 +167,34 @@ public class GenerateScramlCode extends DefaultTask {
         return !StringUtil.isNullOrEmpty(directory) &&
                 (directory.startsWith("/") || directory.contains(":\\") || directory.contains(":/"));
     }
+
+    private String getPlatform() {
+
+        ScramlExtension scramlExtension = getScramlExtension();
+        String platform = scramlExtension.getPlatform();
+        String language = scramlExtension.getLanguage();
+
+        if(StringUtil.isDefined(platform)) {
+            if("scala".equals(platform.toLowerCase())) {
+                return Platform.SCALA_PLAY;
+            } else if("java".equals(platform.toLowerCase())) {
+                return Platform.JAVA_JACKSON;
+            } else {
+                return platform;
+            }
+        } else if(StringUtil.isDefined(language)) {
+            if("scala".equals(language.toLowerCase())) {
+                return Platform.SCALA_PLAY;
+            } else if("java".equals(language.toLowerCase())) {
+                return Platform.JAVA_JACKSON;
+            } else {
+                return language;
+            }
+        } else {
+            return Platform.JAVA_JACKSON;
+        }
+    }
+
 
     private String escape(char ch) {
         return "\\Q" + ch + "\\E";

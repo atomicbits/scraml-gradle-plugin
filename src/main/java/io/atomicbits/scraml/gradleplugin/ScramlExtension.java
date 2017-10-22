@@ -10,6 +10,8 @@ public class ScramlExtension {
 
     private final PropertyState<String> ramlApi;
     private final PropertyState<String> apiPackage;
+    private final PropertyState<String> language;
+    private final PropertyState<String> platform;
     private final PropertyState<String> resourceDirectory;
     private final PropertyState<String> outputDirectory;
     private final PropertyState<String> licenseKey;
@@ -20,6 +22,8 @@ public class ScramlExtension {
     public ScramlExtension(Project project) {
         this.ramlApi = project.property(String.class);
         this.apiPackage = project.property(String.class);
+        this.language = project.property(String.class);
+        this.platform = project.property(String.class);
         this.resourceDirectory = project.property(String.class);
         this.outputDirectory = project.property(String.class);
         this.licenseKey = project.property(String.class);
@@ -57,6 +61,38 @@ public class ScramlExtension {
 
     public void setApiPackage(String apiPackage) {
         this.apiPackage.set(apiPackage);
+    }
+
+    public PropertyState<String> getLanguageProvider() {
+        return this.language;
+    }
+
+    public String getLanguage() {
+        if (this.language.isPresent()) {
+            return this.language.get();
+        } else {
+            return null;
+        }
+    }
+
+    public void setLanguage(String language) {
+        this.language.set(language);
+    }
+
+    public PropertyState<String> getPlatformProvider() {
+        return this.platform;
+    }
+
+    public String getPlatform() {
+        if (this.platform.isPresent()) {
+            return this.platform.get();
+        } else {
+            return null;
+        }
+    }
+
+    public void setPlatform(String platform) {
+        this.platform.set(platform);
     }
 
     public PropertyState<String> getResourceDirectoryProvider() {

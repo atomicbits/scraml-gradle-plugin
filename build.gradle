@@ -1,0 +1,62 @@
+// Clean
+// ./gradlew clean
+// Build
+// ./gradlew build
+// To publish this plugin to the gradle plugin repo:
+// ./gradlew publishPlugins
+// To publish this plugin in the local maven repo:
+// ./gradlew install
+
+plugins {
+    id 'java-gradle-plugin'
+    id 'com.gradle.plugin-publish' version '0.9.8'
+}
+
+apply plugin: 'maven'
+
+repositories {
+    jcenter()
+    mavenLocal()
+    mavenCentral()
+}
+
+// Unless overridden in the pluginBundle config DSL, the project version will be used as your plugin version when publishing
+version = "0.7.0.M1"
+group = "io.atomicbits"
+
+
+sourceCompatibility = JavaVersion.VERSION_1_8
+targetCompatibility = JavaVersion.VERSION_1_8
+
+group = 'io.atomicbits'
+
+
+dependencies {
+
+    compile gradleApi()
+
+    // This dependency is used internally, and not exposed to consumers on their own compile classpath.
+    compile 'io.atomicbits:scraml-generator_2.12:0.7.0'
+
+    // Use JUnit test framework
+    testImplementation 'junit:junit:4.12'
+}
+
+// publish this plugin to Gradle:
+//  ./gradlew publishPlugins
+// see https://plugins.gradle.org/docs/publish-plugin
+pluginBundle {
+
+    website = 'https://github.com/atomicbits/scraml-gradle-plugin'
+    vcsUrl = 'https://github.com/atomicbits/scraml-gradle-plugin.git'
+
+    plugins {
+
+        scramlPlugin {
+            id = 'io.atomicbits.scraml'
+            displayName = 'Scraml code generator plugin'
+            description = 'Scraml code generator plugin'
+            tags = ['scraml', 'raml', 'json-schema', 'REST client', 'http client']
+        }
+    }
+}

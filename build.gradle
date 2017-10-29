@@ -6,6 +6,17 @@
 // ./gradlew publishPlugins
 // To publish this plugin in the local maven repo:
 // ./gradlew install
+// To publish this plugin to maven central:
+// ./gradlew publish
+
+buildscript {
+    repositories {
+        mavenCentral()
+    }
+    dependencies {
+        classpath "io.codearte.gradle.nexus:gradle-nexus-staging-plugin:0.5.3"
+    }
+}
 
 plugins {
     id 'java-gradle-plugin'
@@ -13,6 +24,78 @@ plugins {
 }
 
 apply plugin: 'maven'
+apply plugin: 'io.codearte.nexus-staging'
+apply plugin: 'signing'
+// apply plugin: 'maven-publish'
+
+
+task javadocJar(type: Jar) {
+    classifier = 'javadoc'
+    from javadoc
+}
+
+task sourcesJar(type: Jar) {
+    classifier = 'sources'
+    from sourceSets.main.allSource
+}
+
+artifacts {
+    archives javadocJar, sourcesJar
+}
+
+// Signature of artifacts
+signing {
+    sign configurations.archives
+}
+
+// OSSRH publication
+// ./gradlew build -Prelease uploadArchives closeAndPromoteRepository
+uploadArchives {
+    repositories {
+        mavenDeployer {
+            // POM signature
+            beforeDeployment { MavenDeployment deployment -> signing.signPom(deployment) }
+            // Target repository
+            repository(url: "https://oss.sonatype.org/service/local/staging/deploy/maven2/") {
+                authentication(userName: ossrhUser, password: ossrhPassword)
+            }
+            pom.project {
+                name project.name
+                description project.description
+                packaging 'jar'
+                url 'https://github.com/atomicbits/scraml-gradle-plugin'
+
+                scm {
+                    connection 'scm:git:https://github.com/atomicbits/scraml-gradle-plugin.git'
+                    developerConnection 'scm:git:git@github.com:atomicbits/scraml-gradle-plugin.git'
+                    url 'https://github.com/atomicbits/scraml-gradle-plugin.git'
+                }
+
+                licenses {
+                    license {
+                        name 'AGPLv3 or Scraml EULA'
+                        url 'https://www.gnu.org/licenses/agpl-3.0.en.html'
+                        distribution 'repo'
+                    }
+                }
+
+                developers {
+                    developer {
+                        id = 'rigolepe'
+                        name = 'Peter Rigole'
+                        email = 'peter.rigole@atomicbits.io'
+                    }
+                }
+
+            }
+        }
+    }
+}
+
+nexusStaging {
+    username = ossrhUser
+    password = ossrhPassword
+}
 
 repositories {
     jcenter()
@@ -21,7 +104,7 @@ repositories {
 }
 
 // Unless overridden in the pluginBundle config DSL, the project version will be used as your plugin version when publishing
-version = "0.7.0.M2-SNAPSHOT"
+version = "0.7.0-M1"
 group = "io.atomicbits"
 
 
@@ -42,9 +125,21 @@ dependencies {
     testImplementation 'junit:junit:4.12'
 }
 
+// Maven publishing
+// ./gradlew publish
+// See http://nemerosa.ghost.io/2015/07/01/publishing-to-the-maven-central-using-gradle/
+//publishing {
+//    publications {
+//        mavenJava(MavenPublication) {
+//            from components.java
+//        }
+//    }
+//}
+
 // publish this plugin to Gradle:
 //  ./gradlew publishPlugins
 // see https://plugins.gradle.org/docs/publish-plugin
+// Note: we use maven as the plugin repo.
 pluginBundle {
 
     website = 'https://github.com/atomicbits/scraml-gradle-plugin'

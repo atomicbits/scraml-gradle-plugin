@@ -1,11 +1,17 @@
+// Clean
+// ./gradlew clean
+// Build
+// ./gradlew build
+// To publish this plugin to the gradle plugin repo:
+// ./gradlew publishPlugins
+// To publish this plugin in the local maven repo:
+// ./gradlew install
 
 plugins {
     id 'java-gradle-plugin'
     id 'com.gradle.plugin-publish' version '0.9.8'
 }
 
-// To publish this plugin in the local maven repo:
-//  ./gradlew install
 apply plugin: 'maven'
 
 repositories {
@@ -13,6 +19,11 @@ repositories {
     mavenLocal()
     mavenCentral()
 }
+
+// Unless overridden in the pluginBundle config DSL, the project version will be used as your plugin version when publishing
+version = "0.7.0.M1"
+group = "io.atomicbits"
+
 
 sourceCompatibility = JavaVersion.VERSION_1_8
 targetCompatibility = JavaVersion.VERSION_1_8
@@ -30,10 +41,6 @@ dependencies {
     // Use JUnit test framework
     testImplementation 'junit:junit:4.12'
 }
-
-// Unless overridden in the pluginBundle config DSL, the project version will be used as your plugin version when publishing
-version = "0.7.0.M1-SNAPSHOT"
-group = "io.atomicbits"
 
 // publish this plugin to Gradle:
 //  ./gradlew publishPlugins

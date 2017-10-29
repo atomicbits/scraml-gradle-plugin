@@ -29,7 +29,6 @@ public class GenerateScramlCode extends DefaultTask {
     static final String SOURCE_SETS_PROPERTY = "sourceSets";
 
 
-
     @TaskAction
     public void generate() {
 

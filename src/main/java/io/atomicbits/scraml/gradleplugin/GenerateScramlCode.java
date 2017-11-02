@@ -1,10 +1,15 @@
 package io.atomicbits.scraml.gradleplugin;
 
+import com.android.build.gradle.BaseExtension;
+import com.android.build.gradle.api.AndroidSourceSet;
 import io.atomicbits.scraml.generator.ScramlGenerator;
+import io.atomicbits.scraml.gradleplugin.util.AndroidUtils;
 import io.atomicbits.scraml.gradleplugin.util.ListUtils;
-import io.atomicbits.scraml.gradleplugin.util.StringUtil;
+import io.atomicbits.scraml.gradleplugin.util.StringUtils;
 import org.gradle.api.DefaultTask;
+import org.gradle.api.Project;
 import org.gradle.api.UnknownDomainObjectException;
+import org.gradle.api.file.SourceDirectorySet;
 import org.gradle.api.tasks.OutputDirectory;
 import org.gradle.api.tasks.SourceSet;
 import org.gradle.api.tasks.SourceSetContainer;
@@ -28,7 +33,6 @@ public class GenerateScramlCode extends DefaultTask {
     final static String name = "generateScraml";
     static final String SOURCE_SETS_PROPERTY = "sourceSets";
 
-
     @TaskAction
     public void generate() {
 
@@ -48,7 +52,7 @@ public class GenerateScramlCode extends DefaultTask {
         logger.debug("resourceDirectory: " + resourceDirectory);
         logger.debug("outputDirectory: " + outputDir.getAbsolutePath());
 
-        if (!StringUtil.isNullOrEmpty(ramlApi) && !StringUtil.isNullOrEmpty(resourceDirectory)) {
+        if (!StringUtils.isNullOrEmpty(ramlApi) && !StringUtils.isNullOrEmpty(resourceDirectory)) {
             System.out.println("Generating Scraml client API");
 
             File ramlBaseDir;
@@ -145,25 +149,46 @@ public class GenerateScramlCode extends DefaultTask {
     private String findResourceDirectory() {
         String resourceDir = getScramlExtension().getResourceDirectory();
         if (resourceDir == null) {
-            SourceSetContainer sourceSets = (SourceSetContainer) getProject().getProperties().get(SOURCE_SETS_PROPERTY);
-            if (sourceSets != null) {
-                try {
-                    resourceDir =
-                            sourceSets.getByName(SourceSet.MAIN_SOURCE_SET_NAME)
-                                    .getResources()
-                                    .getSrcDirTrees().iterator().next()
-                                    .getDir()
-                                    .getAbsolutePath();
-                } catch (UnknownDomainObjectException | NoSuchElementException exc) {
-                    // ignore, resourceDir will remain null
+            if (AndroidUtils.isAndroidProject(getProject())) {
+                BaseExtension androidLibraryOrAppExtension = (BaseExtension) getProject().getProperties().get("android");
+                AndroidSourceSet androidMainSourceSet =
+                        androidLibraryOrAppExtension.getSourceSets().getByName(SourceSet.MAIN_SOURCE_SET_NAME);
+                // androidMainSourceSet.getJava().setSrcDirs()
+                resourceDir =
+                        androidMainSourceSet
+                                .getResources()
+                                .getSourceDirectoryTrees()
+                                .iterator().next()
+                                .getDir().getAbsolutePath();
+            } else {
+                SourceSetContainer sourceSets = (SourceSetContainer) getProject().getProperties().get(SOURCE_SETS_PROPERTY);
+                // sourceSets.stream().forEach(sourceSet -> {
+                //     logger.debug("Sourceset: " + sourceSet.getName());
+                // });
+                if (sourceSets != null) {
+                    try {
+                        SourceDirectorySet resources =
+                                sourceSets.getByName(SourceSet.MAIN_SOURCE_SET_NAME)
+                                        .getResources();
+//                        resources.getSrcDirTrees().stream().forEach(directoryTree -> {
+//                            logger.debug("resource directory: " + directoryTree.getDir().getAbsolutePath());
+//                        });
+                        resourceDir =
+                                resources.getSrcDirTrees().iterator().next()
+                                        .getDir()
+                                        .getAbsolutePath();
+                    } catch (UnknownDomainObjectException | NoSuchElementException exc) {
+                        // ignore, resourceDir will remain null
+                    }
                 }
             }
         }
+        logger.debug("Resource dir is: " + resourceDir);
         return resourceDir != null ? resourceDir : "";
     }
 
     private Boolean isTopLevel(String directory) {
-        return !StringUtil.isNullOrEmpty(directory) &&
+        return !StringUtils.isNullOrEmpty(directory) &&
                 (directory.startsWith("/") || directory.contains(":\\") || directory.contains(":/"));
     }
 
@@ -173,18 +198,18 @@ public class GenerateScramlCode extends DefaultTask {
         String platform = scramlExtension.getPlatform();
         String language = scramlExtension.getLanguage();
 
-        if(StringUtil.isDefined(platform)) {
-            if("scala".equals(platform.toLowerCase())) {
+        if (StringUtils.isDefined(platform)) {
+            if ("scala".equals(platform.toLowerCase())) {
                 return Platform.SCALA_PLAY;
-            } else if("java".equals(platform.toLowerCase())) {
+            } else if ("java".equals(platform.toLowerCase())) {
                 return Platform.JAVA_JACKSON;
             } else {
                 return platform;
             }
-        } else if(StringUtil.isDefined(language)) {
-            if("scala".equals(language.toLowerCase())) {
+        } else if (StringUtils.isDefined(language)) {
+            if ("scala".equals(language.toLowerCase())) {
                 return Platform.SCALA_PLAY;
-            } else if("java".equals(language.toLowerCase())) {
+            } else if ("java".equals(language.toLowerCase())) {
                 return Platform.JAVA_JACKSON;
             } else {
                 return language;
@@ -203,7 +228,7 @@ public class GenerateScramlCode extends DefaultTask {
         String[] parts = pointer.split(escape('/'));
         if (parts.length == 1) {
             String packageName;
-            if (StringUtil.isNullOrEmpty(apiPackageName))
+            if (StringUtils.isNullOrEmpty(apiPackageName))
                 packageName = "io.atomicbits";
             else
                 packageName = apiPackageName;
@@ -212,7 +237,7 @@ public class GenerateScramlCode extends DefaultTask {
             String className = cleanFileName(parts[parts.length - 1]);
             List<String> firstParts = Arrays.asList(parts).subList(0, parts.length - 1); // toIndex is exclusive
             String packageName;
-            if (StringUtil.isNullOrEmpty(apiPackageName))
+            if (StringUtils.isNullOrEmpty(apiPackageName))
                 packageName = ListUtils.mkString(firstParts, ".");
             else
                 packageName = apiPackageName;

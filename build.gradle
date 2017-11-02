@@ -12,6 +12,7 @@
 buildscript {
     repositories {
         mavenCentral()
+        google()
     }
     dependencies {
         classpath "io.codearte.gradle.nexus:gradle-nexus-staging-plugin:0.5.3"
@@ -101,6 +102,7 @@ repositories {
     jcenter()
     mavenLocal()
     mavenCentral()
+    google()
 }
 
 // Unless overridden in the pluginBundle config DSL, the project version will be used as your plugin version when publishing
@@ -120,6 +122,7 @@ dependencies {
 
     // This dependency is used internally, and not exposed to consumers on their own compile classpath.
     compile 'io.atomicbits:scraml-generator_2.12:0.7.0'
+    compile 'com.android.tools.build:gradle:3.0.0'
 
     // Use JUnit test framework
     testImplementation 'junit:junit:4.12'

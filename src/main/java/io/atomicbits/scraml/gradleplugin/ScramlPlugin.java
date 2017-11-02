@@ -3,8 +3,11 @@ package io.atomicbits.scraml.gradleplugin;
 import org.gradle.api.Plugin;
 import org.gradle.api.Project;
 import org.gradle.api.Task;
-import org.gradle.api.plugins.JavaPluginConvention;
+import org.gradle.api.UnknownDomainObjectException;
 import org.gradle.api.tasks.SourceSet;
+import org.gradle.api.tasks.SourceSetContainer;
+
+import java.util.NoSuchElementException;
 
 
 /**
@@ -22,9 +25,16 @@ public class ScramlPlugin implements Plugin<Project> {
             task.dependsOn(scramlTask);
         }
         // Add the generated source output dir to the Java source directories.
-        SourceSet mainSourceSet =
-                project.getConvention().getPlugin(JavaPluginConvention.class).getSourceSets().getByName(SourceSet.MAIN_SOURCE_SET_NAME);
-        mainSourceSet.getJava().srcDir(project.relativePath(scramlTask.getOutputDirectory()));
+        SourceSetContainer sourceSets = (SourceSetContainer) project.getProperties().get(GenerateScramlCode.SOURCE_SETS_PROPERTY);
+        if (sourceSets != null) {
+            try {
+                sourceSets.getByName(SourceSet.MAIN_SOURCE_SET_NAME)
+                        .getJava()
+                        .srcDir(project.relativePath(scramlTask.getOutputDirectory()));
+            } catch (UnknownDomainObjectException | NoSuchElementException exc) {
+                // ignore, resourceDir will remain null
+            }
+        }
     }
 
 

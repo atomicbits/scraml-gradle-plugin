@@ -104,7 +104,7 @@ repositories {
 }
 
 // Unless overridden in the pluginBundle config DSL, the project version will be used as your plugin version when publishing
-version = "0.7.0-M1"
+version = "0.7.0-M2-SNAPSHOT"
 group = "io.atomicbits"
 
 

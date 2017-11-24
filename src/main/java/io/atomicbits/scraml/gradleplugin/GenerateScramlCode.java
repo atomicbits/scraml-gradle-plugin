@@ -71,25 +71,15 @@ public class GenerateScramlCode extends DefaultTask {
 
             Map<String, String> generatedFiles;
             try {
-                if (Platform.SCALA_PLAY.toLowerCase().equals(platform.toLowerCase())) {
-                    generatedFiles =
-                            ScramlGenerator.generateScalaCode(
-                                    ramlSource.toURI().toURL().toString(),
-                                    apiPackageName,
-                                    apiClassName,
-                                    licenseKey,
-                                    classHeader
-                            );
-                } else { // default
-                    generatedFiles =
-                            ScramlGenerator.generateJavaCode(
-                                    ramlSource.toURI().toURL().toString(),
-                                    apiPackageName,
-                                    apiClassName,
-                                    licenseKey,
-                                    classHeader
-                            );
-                }
+                generatedFiles =
+                        ScramlGenerator.generateScramlCode(
+                                platform,
+                                ramlSource.toURI().toURL().toString(),
+                                apiPackageName,
+                                apiClassName,
+                                licenseKey,
+                                classHeader
+                        );
             } catch (MalformedURLException | NullPointerException e) {
                 feedbackOnException(ramlBaseDir, ramlApi, ramlSource);
                 throw new RuntimeException("Could not generate RAML client.", e);
@@ -199,26 +189,15 @@ public class GenerateScramlCode extends DefaultTask {
         String language = scramlExtension.getLanguage();
 
         if (StringUtils.isDefined(platform)) {
-            if ("scala".equals(platform.toLowerCase())) {
-                return Platform.SCALA_PLAY;
-            } else if ("java".equals(platform.toLowerCase())) {
-                return Platform.JAVA_JACKSON;
-            } else {
-                return platform;
-            }
+            return platform;
         } else if (StringUtils.isDefined(language)) {
-            if ("scala".equals(language.toLowerCase())) {
-                return Platform.SCALA_PLAY;
-            } else if ("java".equals(language.toLowerCase())) {
-                return Platform.JAVA_JACKSON;
-            } else {
-                return language;
-            }
+            return language;
+        } else if (AndroidUtils.isAndroidProject(getProject())) {
+            return Platform.ANDROID_JAVA_JACKSON;
         } else {
             return Platform.JAVA_JACKSON;
         }
     }
-
 
     private String escape(char ch) {
         return "\\Q" + ch + "\\E";

@@ -6,6 +6,8 @@
 // ./gradlew publishPlugins
 // To publish this plugin in the local maven repo:
 // ./gradlew install
+// To publish this plugin to sonatype (SONATYPE_USERNAME and SONATYPE_PASSWORD env vars must be set) :
+// ./gradlew build -Prelease uploadArchives closeAndPromoteRepository
 
 plugins {
     id 'java-gradle-plugin'
@@ -21,7 +23,7 @@ repositories {
 }
 
 // Unless overridden in the pluginBundle config DSL, the project version will be used as your plugin version when publishing
-version = "0.7.0.M1"
+version = "0.7.1" // change in 2 places
 group = "io.atomicbits"
 
 
@@ -36,7 +38,7 @@ dependencies {
     compile gradleApi()
 
     // This dependency is used internally, and not exposed to consumers on their own compile classpath.
-    compile 'io.atomicbits:scraml-generator_2.12:0.7.0'
+    compile 'io.atomicbits:scraml-generator_2.12:0.7.1'  // change in 2 places
 
     // Use JUnit test framework
     testImplementation 'junit:junit:4.12'

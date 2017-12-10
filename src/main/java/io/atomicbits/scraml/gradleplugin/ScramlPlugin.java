@@ -10,9 +10,7 @@ import org.gradle.api.UnknownDomainObjectException;
 import org.gradle.api.tasks.SourceSet;
 import org.gradle.api.tasks.SourceSetContainer;
 
-import java.util.Arrays;
-import java.util.List;
-import java.util.NoSuchElementException;
+import java.util.*;
 
 
 /**
@@ -28,12 +26,21 @@ public class ScramlPlugin implements Plugin<Project> {
         // depend the compile task on the codegen task
         // compileJava & compileTestJava: plain Java project
         // javaPreCompileDebug and javaPreCompileRelease: Java android project
+
         List<String> tasksToDependOn = Arrays.asList("build", "compileJava", "compileTestJava", "javaPreCompileDebug", "javaPreCompileRelease");
         for (String dependingTaskName : tasksToDependOn) {
             for (Task task : project.getTasksByName(dependingTaskName, false)) {
                 task.dependsOn(scramlTask);
             }
         }
+
+//        Map<Project, Set<Task>> projectsWithTasks = project.getAllTasks(false);
+//        for (Set<Task> taskSet : projectsWithTasks.values()) {
+//            for (Task task : taskSet) {
+//                setDependsOn(task, project, scramlTask);
+//            }
+//        }
+
         // Add the generated source output dir to the Java source directories.
         if (AndroidUtils.isAndroidProject(project)) {
             BaseExtension androidLibraryOrAppExtension = (BaseExtension) project.getProperties().get("android");
@@ -56,6 +63,31 @@ public class ScramlPlugin implements Plugin<Project> {
                 }
             }
         }
+    }
+
+    private boolean isTaskDependentOnScramlTask(String taskName) {
+        String taksNameLowerCase = taskName.toLowerCase();
+        return (taksNameLowerCase.contains("java") && taksNameLowerCase.contains("compile")) || taksNameLowerCase.equals("build");
+    }
+
+    private void setDependsOn(Task task, Project project, GenerateScramlCode scramlTask) {
+
+        String taskName = task.getName();
+        System.out.println("Task name: " + taskName);
+
+        if (isTaskDependentOnScramlTask(taskName)) {
+            for (Task javaCompileTask : project.getTasksByName(taskName, false)) {
+                javaCompileTask.dependsOn(scramlTask);
+            }
+        }
+
+        for (Object potentialTask : task.getDependsOn()) {
+            System.out.println("Potential task is: " + potentialTask.getClass().getCanonicalName());
+            if (potentialTask instanceof Task) {
+                setDependsOn((Task) potentialTask, project, scramlTask);
+            }
+        }
+
     }
 
 

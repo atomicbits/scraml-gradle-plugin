@@ -106,7 +106,7 @@ repositories {
 }
 
 // Unless overridden in the pluginBundle config DSL, the project version will be used as your plugin version when publishing
-version = "0.7.1" // <change in 2 places>
+version = "0.7.2"
 group = "io.atomicbits"
 
 
@@ -121,7 +121,11 @@ dependencies {
     compile gradleApi()
 
     // This dependency is used internally, and not exposed to consumers on their own compile classpath.
-    compile 'io.atomicbits:scraml-generator_2.12:0.7.1' // <change in 2 places>
+    compile (
+            group: 'io.atomicbits',
+            name: 'scraml-generator_2.12',
+            version: version // Same as this project's version! 
+    )
     compile 'com.android.tools.build:gradle:3.0.0'
 
     // Use JUnit test framework

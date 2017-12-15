@@ -5,9 +5,10 @@
 // To publish this plugin to the gradle plugin repo:
 // ./gradlew publishPlugins
 // To publish this plugin in the local maven repo:
-// ./gradlew install
-// To publish this plugin to maven central:
-// ./gradlew publish
+// ./gradlew install// ./gradlew publish
+// OSSRH publication
+// ./gradlew build -Prelease uploadArchives closeAndPromoteRepository
+
 
 buildscript {
     repositories {

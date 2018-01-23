@@ -27,7 +27,10 @@ public class ScramlPlugin implements Plugin<Project> {
         // compileJava & compileTestJava: plain Java project
         // javaPreCompileDebug and javaPreCompileRelease: Java android project
 
-        List<String> tasksToDependOn = Arrays.asList("build", "compileJava", "compileTestJava", "javaPreCompileDebug", "javaPreCompileRelease");
+        List<String> tasksToDependOn = Arrays.asList(
+                "build", "compileJava", "compileTestJava", "javaPreCompileDebug", "javaPreCompileRelease",
+                "compileDebugJavaWithJavac", "compileReleaseJavaWithJavac"
+        );
         for (String dependingTaskName : tasksToDependOn) {
             for (Task task : project.getTasksByName(dependingTaskName, false)) {
                 task.dependsOn(scramlTask);

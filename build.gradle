@@ -1,11 +1,23 @@
 // Clean
 // ./gradlew clean
+
 // Build
 // ./gradlew build
+
+// OSSRH publication
+// Sometimes the release process fails and manual release is necessary on https://oss.sonatype.org/#stagingRepositories
+// ./gradlew build -Prelease uploadArchives closeAndPromoteRepository
+
 // To publish this plugin to the gradle plugin repo:
 // ./gradlew publishPlugins
+
 // To publish this plugin in the local maven repo:
-// ./gradlew install// ./gradlew publish
+
+// ./gradlew install
+
+// To publish this plugin to maven central:
+// ./gradlew publish
+
 // OSSRH publication
 // ./gradlew build -Prelease uploadArchives closeAndPromoteRepository
 
@@ -107,7 +119,7 @@ repositories {
 }
 
 // Unless overridden in the pluginBundle config DSL, the project version will be used as your plugin version when publishing
-version = "0.7.2"
+version = "0.8.0-M1" // <change in 1 place>
 group = "io.atomicbits"
 
 

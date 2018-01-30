@@ -1,13 +1,22 @@
 // Clean
 // ./gradlew clean
+
 // Build
 // ./gradlew build
+
+// OSSRH publication
+// Sometimes the release process fails and manual release is necessary on https://oss.sonatype.org/#stagingRepositories
+// ./gradlew build -Prelease uploadArchives closeAndPromoteRepository
+
 // To publish this plugin to the gradle plugin repo:
 // ./gradlew publishPlugins
+
 // To publish this plugin in the local maven repo:
 // ./gradlew install
+
 // To publish this plugin to maven central:
 // ./gradlew publish
+
 
 buildscript {
     repositories {
@@ -106,7 +115,7 @@ repositories {
 }
 
 // Unless overridden in the pluginBundle config DSL, the project version will be used as your plugin version when publishing
-version = "0.8.0-SNAPSHOT" // <change in 2 places>
+version = "0.8.0-M1" // <change in 2 places>
 group = "io.atomicbits"
 
 
@@ -121,7 +130,7 @@ dependencies {
     compile gradleApi()
 
     // This dependency is used internally, and not exposed to consumers on their own compile classpath.
-    compile 'io.atomicbits:scraml-generator_2.12:0.8.0-SNAPSHOT' // <change in 2 places>
+    compile 'io.atomicbits:scraml-generator_2.12:0.8.0-M1' // <change in 2 places>
     compile 'com.android.tools.build:gradle:3.0.0'
 
     // Use JUnit test framework

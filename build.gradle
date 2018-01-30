@@ -18,9 +18,6 @@
 // To publish this plugin to maven central:
 // ./gradlew publish
 
-// OSSRH publication
-// ./gradlew build -Prelease uploadArchives closeAndPromoteRepository
-
 
 buildscript {
     repositories {

@@ -5,12 +5,8 @@ import org.gradle.api.Project;
 import org.gradle.api.Task;
 import org.gradle.api.plugins.JavaPluginConvention;
 import org.gradle.api.tasks.SourceSet;
-<<<<<<< HEAD
-=======
 import org.gradle.api.tasks.SourceSetContainer;
-
 import java.util.*;
->>>>>>> release/0.8.0-M1
 
 
 /**
@@ -24,10 +20,7 @@ public class ScramlPlugin implements Plugin<Project> {
         GenerateScramlCode scramlTask = project.getTasks().create(GenerateScramlCode.name, GenerateScramlCode.class);
         scramlTask.setDescription("Generates REST client code from a RAML model.");
         // depend the compile task on the codegen task
-<<<<<<< HEAD
-        for (Task task : project.getTasksByName("compileJava", false)) {
-            task.dependsOn(scramlTask);
-=======
+
         // compileJava & compileTestJava: plain Java project
         // javaPreCompileDebug and javaPreCompileRelease: Java android project
 
@@ -39,7 +32,6 @@ public class ScramlPlugin implements Plugin<Project> {
             for (Task task : project.getTasksByName(dependingTaskName, false)) {
                 task.dependsOn(scramlTask);
             }
->>>>>>> release/0.8.0-M1
         }
 
 //        Map<Project, Set<Task>> projectsWithTasks = project.getAllTasks(false);

@@ -16,6 +16,7 @@ public class ScramlExtension {
     private final PropertyState<String> outputDirectory;
     private final PropertyState<String> licenseKey;
     private final PropertyState<String> classHeader;
+    private final PropertyState<String> singleSourceFile;
 
     static final String name = "scraml";
 
@@ -28,6 +29,7 @@ public class ScramlExtension {
         this.outputDirectory = project.property(String.class);
         this.licenseKey = project.property(String.class);
         this.classHeader = project.property(String.class);
+        this.singleSourceFile = project.property(String.class);
 
     }
 
@@ -157,6 +159,23 @@ public class ScramlExtension {
 
     public void setClassHeader(String classHeader) {
         this.classHeader.set(classHeader);
+    }
+
+
+    public PropertyState<String> getSingleSourceFileProvider() {
+        return this.singleSourceFile;
+    }
+
+    public String getSingleSourceFile() {
+        if (this.singleSourceFile.isPresent()) {
+            return this.singleSourceFile.get();
+        } else {
+            return null;
+        }
+    }
+
+    public void setSingleSourceFile(String singleSourceFile) {
+        this.singleSourceFile.set(singleSourceFile);
     }
 
 }

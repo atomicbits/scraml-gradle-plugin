@@ -37,6 +37,7 @@ public class GenerateScramlCode extends DefaultTask {
         String apiPackage = scramlExtension.getApiPackage();
         String licenseKey = scramlExtension.getLicenseKey();
         String classHeader = scramlExtension.getClassHeader();
+        String singleSourceFile = scramlExtension.getSingleSourceFile();
         String platform = getPlatform();
         String resourceDirectory = findResourceDirectory();
         File outputDir = getOutputDirectory();
@@ -45,6 +46,7 @@ public class GenerateScramlCode extends DefaultTask {
         logger.debug("apiPackage: " + apiPackage);
         logger.debug("licenseKey: " + licenseKey);
         logger.debug("classHeader: " + classHeader);
+        logger.debug("singleSourceFile: " + singleSourceFile);
         logger.debug("resourceDirectory: " + resourceDirectory);
         logger.debug("outputDirectory: " + outputDir.getAbsolutePath());
 
@@ -67,25 +69,16 @@ public class GenerateScramlCode extends DefaultTask {
 
             Map<String, String> generatedFiles;
             try {
-                if (Platform.SCALA_PLAY.toLowerCase().equals(platform.toLowerCase())) {
-                    generatedFiles =
-                            ScramlGenerator.generateScalaCode(
-                                    ramlSource.toURI().toURL().toString(),
-                                    apiPackageName,
-                                    apiClassName,
-                                    licenseKey,
-                                    classHeader
-                            );
-                } else { // default
-                    generatedFiles =
-                            ScramlGenerator.generateJavaCode(
-                                    ramlSource.toURI().toURL().toString(),
-                                    apiPackageName,
-                                    apiClassName,
-                                    licenseKey,
-                                    classHeader
-                            );
-                }
+                generatedFiles =
+                        ScramlGenerator.generateScramlCode(
+                                platform.toLowerCase(),
+                                ramlSource.toURI().toURL().toString(),
+                                apiPackageName,
+                                apiClassName,
+                                licenseKey,
+                                classHeader,
+                                singleSourceFile
+                        );
             } catch (MalformedURLException | NullPointerException e) {
                 feedbackOnException(ramlBaseDir, ramlApi, ramlSource);
                 throw new RuntimeException("Could not generate RAML client.", e);

@@ -15,7 +15,7 @@
 
 // ./gradlew install
 
-// To publish this plugin to maven central:
+// (To publish this plugin to maven central:)
 // ./gradlew publish
 
 

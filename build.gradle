@@ -15,8 +15,8 @@
 
 // ./gradlew install
 
-// To publish this plugin to maven central:
-// ./gradlew publish
+// (To publish this plugin to maven central:)
+// (./gradlew publish)
 
 
 buildscript {
@@ -116,7 +116,7 @@ repositories {
 }
 
 // Unless overridden in the pluginBundle config DSL, the project version will be used as your plugin version when publishing
-version = "0.8.2-SNAPSHOT" // <change in 1 place>
+version = "0.8.2" // <change in 1 place>
 group = "io.atomicbits"
 
 
